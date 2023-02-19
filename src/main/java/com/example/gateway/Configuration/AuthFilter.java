@@ -7,35 +7,43 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Objects;
+
 @Component
 public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> {
     private final WebClient.Builder webClientBuilder;
-    public AuthFilter(WebClient.Builder webClientBuilder){
-        this.webClientBuilder=webClientBuilder;
+
+    public AuthFilter(WebClient.Builder webClientBuilder) {
+        super(Config.class);
+        this.webClientBuilder = webClientBuilder;
     }
+
     @Override
     public GatewayFilter apply(Config config) {
-        return (exchange, chain) ->{
+        return (exchange, chain) -> {
             if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
-                throw new RuntimeException("Missing auth info");
+                throw new RuntimeException("no key authorization");
             }
-          String authHeader=  exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-            String[] parts=authHeader.split("");
-            if(parts.length != 2 || !"Bearer".equals(parts[0])){
-                throw new RuntimeException("incorrect auth structure");
+
+            String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+            String[] parts = authHeader.split(" ");
+            if (parts.length !=2 || !"Bearer".equals(parts[0])){
+                throw new RuntimeException("authorization no contains token");
             }
+
             return webClientBuilder.build()
-                    .post()
-                    .uri("http://service-users/users/validateToken?token"+parts[1])
+                    .get()
+                    .uri("http://User/User/validate-token/" + parts[1])
                     .retrieve().bodyToMono(UserDto.class)
-                    .map(userDto -> {
+                    .map(response -> {
                         exchange.getRequest()
                                 .mutate()
-                                .header("x-auth_user_id",String.valueOf(userDto.getId()));
-                            return exchange;
+                                .header("X-auth-user", String.valueOf(response));
+                        return exchange;
                     }).flatMap(chain::filter);
-        } ;
+        };
     }
+
     public static class Config{
     }
 }

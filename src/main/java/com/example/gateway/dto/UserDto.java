@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class UserDto {
-
-    private long id;
-    private String login;
-    private String token;
+    private Long id;
+    private String password;
+    private String email;
+    private String FirstNAme;
+    private String LastName;
 }

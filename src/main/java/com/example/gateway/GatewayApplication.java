@@ -15,15 +15,15 @@ public class GatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(GatewayApplication.class, args);
     }
-    @Bean
+ /*   @Bean
     RouteLocator staticRoutes(RouteLocatorBuilder builder){
         return builder.routes()
                 .route(r->r.path("/wallets/**").uri("lb://WALLET"))
                 .route(r->r.path("/users/**").uri("lb://USER"))
                 .build();
     }
-    //@Bean
+    @Bean
     DiscoveryClientRouteDefinitionLocator dynamicRoutes(ReactiveDiscoveryClient rdc, DiscoveryLocatorProperties dlp){
         return new DiscoveryClientRouteDefinitionLocator(rdc,dlp);
-    }
+    }*/
 }
